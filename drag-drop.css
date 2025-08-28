@@ -1,0 +1,55 @@
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background: #f4f4f4;
+  margin: 0;
+  padding: 20px;
+}
+
+#catalog {
+  margin: 15px;
+  padding: 10px;
+  background: #fff;
+  border: 2px solid #444;
+  display: inline-block;
+  border-radius: 10px;
+}
+
+#catalog h2 {
+  margin: 5px 0;
+}
+
+.decor {
+  width: 80px;
+  margin: 10px;
+  cursor: grab;
+}
+
+#canvas-container {
+  position: relative;
+  display: inline-block;
+  border: 2px solid #444;
+  background: white;
+  margin-top: 20px;
+}
+
+#room-canvas {
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+#controls {
+  margin-top: 20px;
+}
+
+button {
+  padding: 10px 15px;
+  font-size: 16px;
+  cursor: pointer;
+  margin: 5px;
+  border-radius: 5px;
+}
+
+button:hover {
+  background: #ddd;
+}

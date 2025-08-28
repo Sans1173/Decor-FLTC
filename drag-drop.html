@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Room Decor Designer</title>
+  <link rel="stylesheet" href="drag-drop.css">
+</head>
+<body>
+  <h1>🛋️ Room Decor Designer</h1>
+
+  <!-- Decor catalog -->
+  <div id="catalog">
+    <h2>Decor Catalog</h2>
+    <img src="sofa.png" class="decor" draggable="true">
+    <img src="lamp.png" class="decor" draggable="true">
+    <img src="table.png" class="decor" draggable="true">
+    <img src="plant.png" class="decor" draggable="true">
+  </div>
+
+  <!-- Canvas container -->
+  <div id="canvas-container">
+    <canvas id="room-canvas" width="800" height="500"></canvas>
+  </div>
+
+  <!-- Controls -->
+  <div id="controls">
+    <button onclick="undo()">Undo</button>
+    <button onclick="redo()">Redo</button>
+    <button onclick="togglePreview()">Preview</button>
+    <button onclick="saveLayoutJSON()">Save Layout</button>
+    <button onclick="loadLayoutJSON()">Load Layout</button>
+    <button onclick="resetDecor()">Reset Decors</button>
+  </div>
+
+  <script src="drag-drop.js"></script>
+</body>
+</html>
