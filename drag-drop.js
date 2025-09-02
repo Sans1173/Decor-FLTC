@@ -2,8 +2,16 @@ const canvas = document.getElementById("room-canvas");
 const ctx = canvas.getContext("2d");
 
 const background = new Image();
-background.src = "room.jpg"; // background
+const savedImage = localStorage.getItem("uploadedRoomImage");
+
+if (savedImage) {
+  background.src = savedImage;   // 🔹 load uploaded image
+} else {
+  background.src = "room.jpg";   // fallback if nothing uploaded
+}
+
 background.onload = () => redrawCanvas();
+
 
 let draggedImg = null;
 let decorItems = [];
