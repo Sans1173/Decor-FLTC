@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Agentic AI - Room Decor</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Agentic AI Room Decor</h1>
+    <input type="file" id="roomUpload" accept="image/*">
+    <div class="button-group">
+      <button onclick="goToDragDrop() ">Drag & Drop Mode</button>
+      <button onclick="goToAIMode()">AI Generated Mode</button>
+    </div>
+  </div>
+
+  <script>
+    let uploadedImage = null;
+
+    // Restore uploaded image  s      d
+    uploadedImage = localStorage.getItem("uploadedRoomImage");
+
+    document.getElementById("roomUpload").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          uploadedImage = reader.result;
+          localStorage.setItem("uploadedRoomImage", uploadedImage);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    function goToDragDrop() { 
+      if (!uploadedImage) {
+        alert("Please upload a room image first!");
+        return;
+      }
+      window.location.href = "drag-drop.html";
+    }
+
+    function goToAIMode() {
+      if (!uploadedImage) {
+        alert("Please upload a room image first!");
+        return;
+      }
+      window.location.href = "AI_Gen_Image.html";
+    }
+  </script>
+</body>
+</html>

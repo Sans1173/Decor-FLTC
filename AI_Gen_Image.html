@@ -1,0 +1,179 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Agentic AI - Chat Mode</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="chat-container">
+    <h2>AI Generated Room Decor</h2>
+    <div id="chatbox" class="chatbox"></div>
+
+    <div class="input-area">
+      <input type="text" id="userInput" placeholder="Describe what you want to add...">
+      <button id="sendBtn">Send</button>
+    </div>
+  </div> 
+
+  <script type="module">
+    import { model } from "./api.js";  <!-- integrate here 
+
+    const chatbox = document.getElementById("chatbox");
+    const sendBtn = document.getElementById("sendBtn");
+    const userInput = document.getElementById("userInput");
+    const uploadedImage = localStorage.getItem("uploadedRoomImage");
+
+    // Show uploaded image first
+    if (uploadedImage) {
+      const imgMsg = document.createElement("div");
+      imgMsg.className = "chat-message user";
+      imgMsg.innerHTML = `<img src="${uploadedImage}" class="chat-img">`;
+      chatbox.appendChild(imgMsg);
+    }
+
+    sendBtn.addEventListener("click", async () => {
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      displayMessage(text, "user");
+      userInput.value = "";
+
+      const processing = displayMessage("Thinking...", "ai");
+
+      try {
+        const result = await model.generateContent([
+          {z
+            role: "user",
+            parts: [
+              { text },
+              uploadedImage
+                ? {
+                    inlineData: {
+                      mimeType: "image/png",
+                      data: uploadedImage.split(",")[1],
+                    },
+                  }
+                : null,
+            ].filter(Boolean),
+          },
+        ]);
+
+        processing.remove();
+
+        const aiText = result.response.text();
+        if (aiText) displayMessage(aiText, "ai");
+
+      } catch (err) {
+        console.error(err);
+        processing.innerText = "Error: Gemini API request failed.";
+      }
+
+      chatbox.scrollTop = chatbox.scrollHeight;
+    });
+
+    function displayMessage(text, role) {
+      const msg = document.createElement("div");
+      msg.className = `chat-message ${role}`;
+      msg.innerText = text;
+      chatbox.appendChild(msg);
+      return msg;
+    }
+</script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Agentic AI - Chat Mode</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="chat-container">
+    <h2>AI Generated Room Decor</h2>
+    <div id="chatbox" class="chatbox"></div>
+
+    <div class="input-area">
+      <input type="text" id="userInput" placeholder="Describe what you want to add...">
+      <button id="sendBtn">Send</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+
+    const chatbox = document.getElementById("chatbox");
+    const sendBtn = document.getElementById("sendBtn");
+    const userInput = document.getElementById("userInput");
+    const uploadedImage = localStorage.getItem("uploadedRoomImage");
+
+    // Display uploaded image in chat as first message
+    if (uploadedImage) {
+      const imgMsg = document.createElement("div");
+      imgMsg.className = "chat-message user";
+      imgMsg.innerHTML = `<img src="${uploadedImage}" class="chat-img">`;
+      chatbox.appendChild(imgMsg);
+    }
+
+    // ✅ Initialize Gemini with your API Key
+    // Replace 'YOUR_GEMINI_API_KEY_HERE' with your actual API key
+    const genAI = new GoogleGenerativeAI("https://gemini.google.com/");
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    sendBtn.addEventListener("click", async () => {
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      displayMessage(text, "user");
+      userInput.value = "";
+
+      // Show temporary AI processing text
+      const processing = displayMessage("Thinking...", "ai");
+
+      try {
+        const result = await model.generateContent([
+          {
+            role: "user",
+            parts: [
+              { text },
+              // Send uploaded image if available
+              uploadedImage
+                ? {
+                    inlineData: {
+                      mimeType: "image/png",
+                      data: uploadedImage.split(",")[1], // strip base64 prefix
+                    },
+                  }
+                : null,
+            ].filter(Boolean),
+          },
+        ]);
+
+        // Remove the "Thinking..." placeholder
+        processing.remove();
+
+        // Show Gemini's text response
+        const aiText = result.response.text();
+        if (aiText) displayMessage(aiText, "ai");
+
+      } catch (err) {
+        console.error(err);
+        processing.innerText = "Error: Gemini API request failed.";
+      }
+
+      chatbox.scrollTop = chatbox.scrollHeight;
+    });
+
+    // Utility to add text messages
+    function displayMessage(text, role) {
+      const msg = document.createElement("div");
+      msg.className = `chat-message ${role}`;
+      msg.innerText = text;
+      chatbox.appendChild(msg);
+      return msg;
+    }
+  </script>
+</body>
+</html>
