@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Room Decor Assistant</title>
+    <link rel="stylesheet" href="my.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Upload Section -->
+        <div class="upload-section" id="uploadSection">
+            <h1>AI Room Decor Assistant</h1>
+            <p>Upload your room image and get decoration suggestions</p>
+            
+            <div class="upload-area" id="uploadArea">
+                <p>📷 Click to upload or drag & drop your room image</p>
+                <input type="file" id="imageInput" accept="image/*" hidden>
+            </div>
+            
+            <div class="preview-container" id="previewContainer" style="display: none;">
+                <img id="previewImage" alt="Room preview">
+                <button class="btn" id="startChatBtn">Start Chat</button>
+            </div>
+        </div>
+
+        <!-- Chat Section -->
+        <div class="chat-section" id="chatSection" style="display: none;">
+            <h2>💬 Chat with AI Decorator</h2>
+            <button class="btn-back" id="backBtn">← Back to Upload</button>
+            
+            <div class="chat-box" id="chatBox"></div>
+            
+            <div class="input-section">
+                <input type="text" 
+                       id="messageInput" 
+                       placeholder="Ask me to add furniture, suggest colors, etc..."
+                       maxlength="300">
+                <button class="btn-send" id="sendBtn">Send</button>
+            </div>
+        </div>
+        
+        <!-- Loading -->
+        <div class="loading" id="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>AI is thinking...</p>
+        </div>
+    </div>
+
+    <script>
+        class RoomDecorApp {
+            constructor() {
+                this.currentImage = null;
+                this.init();
+            }
+
+            init() {
+                // Get elements
+                this.uploadSection = document.getElementById('uploadSection');
+                this.chatSection = document.getElementById('chatSection');
+                this.uploadArea = document.getElementById('uploadArea');
+                this.imageInput = document.getElementById('imageInput');
+                this.previewContainer = document.getElementById('previewContainer');
+                this.previewImage = document.getElementById('previewImage');
+                this.startChatBtn = document.getElementById('startChatBtn');
+                this.backBtn = document.getElementById('backBtn');
+                this.chatBox = document.getElementById('chatBox');
+                this.messageInput = document.getElementById('messageInput');
+                this.sendBtn = document.getElementById('sendBtn');
+                this.loading = document.getElementById('loading');
+
+                // Add event listeners
+                this.uploadArea.addEventListener('click', () => this.imageInput.click());
+                this.imageInput.addEventListener('change', (e) => this.handleImageUpload(e));
+                this.startChatBtn.addEventListener('click', () => this.showChat());
+                this.backBtn.addEventListener('click', () => this.showUpload());
+                this.sendBtn.addEventListener('click', () => this.sendMessage());
+                this.messageInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.sendMessage();
+                });
+
+                // Drag and drop
+                this.uploadArea.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    this.uploadArea.style.backgroundColor = '#f0f0f0';
+                });
+                this.uploadArea.addEventListener('dragleave', () => {
+                    this.uploadArea.style.backgroundColor = '';
+                });
+                this.uploadArea.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    this.uploadArea.style.backgroundColor = '';
+                    if (e.dataTransfer.files.length > 0) {
+                        this.handleImageFile(e.dataTransfer.files[0]);
+                    }
+                });
+            }
+
+            handleImageUpload(e) {
+                if (e.target.files.length > 0) {
+                    this.handleImageFile(e.target.files[0]);
+                }
+            }
+
+            handleImageFile(file) {
+                if (!file.type.startsWith('image/')) {
+                    alert('Please upload a valid image file');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.currentImage = e.target.result;
+                    this.previewImage.src = this.currentImage;
+                    this.previewContainer.style.display = 'block';
+                    this.uploadArea.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+
+            showChat() {
+                if (!this.currentImage) {
+                    alert('Please upload an image first');
+                    return;
+                }
+
+                this.uploadSection.style.display = 'none';
+                this.chatSection.style.display = 'block';
+                
+                // Add initial message
+                this.addMessage('user', '', this.currentImage);
+                this.addMessage('ai', 'I can see your room! What would you like me to help you with? You can ask me to add furniture, suggest colors, improve lighting, or anything else about decorating this space.');
+                
+                this.messageInput.focus();
+            }
+
+            showUpload() {
+                this.chatSection.style.display = 'none';
+                this.uploadSection.style.display = 'block';
+                this.chatBox.innerHTML = '';
+            }
+
+            addMessage(sender, text, image = null, generatedImage = null) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}`;
+
+                // Add original uploaded image
+                if (image) {
+                    const img = document.createElement('img');
+                    img.src = image;
+                    img.className = 'chat-image';
+                    messageDiv.appendChild(img);
+                }
+
+                // Add generated image from AI
+                if (generatedImage) {
+                    const genImg = document.createElement('img');
+                    genImg.src = generatedImage;
+                    genImg.className = 'generated-image';
+                    genImg.alt = 'AI Generated Room Design';
+                    genImg.style.maxWidth = '100%';
+                    genImg.style.borderRadius = '8px';
+                    genImg.style.marginBottom = '10px';
+                    genImg.style.border = '2px solid #28a745';
+                    
+                    // Add loading state
+                    genImg.onload = () => {
+                        genImg.style.opacity = '1';
+                    };
+                    genImg.style.opacity = '0.5';
+                    genImg.style.transition = 'opacity 0.3s';
+                    
+                    messageDiv.appendChild(genImg);
+                }
+
+                // Add text content
+                if (text) {
+                    const textDiv = document.createElement('div');
+                    textDiv.className = 'message-text';
+                    
+                    // Format text with basic markdown-style formatting
+                    const formattedText = text
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/\n/g, '<br>');
+                    
+                    textDiv.innerHTML = formattedText;
+                    messageDiv.appendChild(textDiv);
+                }
+
+                this.chatBox.appendChild(messageDiv);
+                this.chatBox.scrollTop = this.chatBox.scrollHeight;
+            }
+
+            showLoading(show) {
+                this.loading.style.display = show ? 'flex' : 'none';
+                this.sendBtn.disabled = show;
+                this.messageInput.disabled = show;
+                
+                if (show) {
+                    this.sendBtn.textContent = 'Generating...';
+                    this.sendBtn.style.backgroundColor = '#6c757d';
+                } else {
+                    this.sendBtn.textContent = 'Send';
+                    this.sendBtn.style.backgroundColor = '#28a745';
+                }
+            }
+
+            async sendMessage() {
+                const message = this.messageInput.value.trim();
+                if (!message) return;
+
+                // Add user message
+                this.addMessage('user', message);
+                this.messageInput.value = '';
+
+                // Show loading
+                this.showLoading(true);
+
+                try {
+                    console.log('Sending request:', { prompt: message, hasImage: !!this.currentImage });
+                    
+                    // Call API
+                    const response = await fetch('/analyze-room', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            prompt: message,
+                            image: this.currentImage
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    console.log('Received response:', data);
+                    
+                    if (!data.success) {
+                        throw new Error(data.error || 'Unknown error occurred');
+                    }
+                    
+                    // Add AI response with generated image if available
+                    const responseText = data.response || data.analysis || 'Sorry, I could not process your request.';
+                    const generatedImage = data.modifiedImage || null;
+                    
+                    this.addMessage('ai', responseText, null, generatedImage);
+                    
+                    // Show success message if image was generated
+                    if (generatedImage) {
+                        console.log('✅ Generated image received and displayed!');
+                    } else if (data.status === 'loading') {
+                        console.log('⏳ Model is loading, try again in a minute');
+                    } else {
+                        console.log('📝 Text-only response provided');
+                    }
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    this.addMessage('ai', `❌ Sorry, there was an error processing your request: ${error.message}. Please try again.`);
+                } finally {
+                    this.showLoading(false);
+                }
+            }
+        }
+
+        // Start the app
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 AI Room Decor App initialized');
+            new RoomDecorApp();
+        });
+    </script>
+</body>
+</html>
