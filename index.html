@@ -2,12 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Agentic AI - Room Decor</title>
+  <title>Layout 2 Checkout</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="container">
-    <h1>Agentic AI Room Decor</h1>
+    <div class="logo">Layout <span>2</span> Checkout</div>
+    <div class="tagline">From Design to Purchase Seamlessly</div>
     <input type="file" id="roomUpload" accept="image/*">
     <div class="button-group">
       <button onclick="goToDragDrop() ">Drag & Drop Mode</button>
@@ -16,6 +17,7 @@
   </div>
 
   <script>
+    // localStorage.removeItem("uploadedRoomImage");
     let uploadedImage = null;
 
     // Restore uploaded image  s      d
@@ -32,7 +34,7 @@
         reader.readAsDataURL(file);
       }
     });
-
+    
     function goToDragDrop() { 
       if (!uploadedImage) {
         alert("Please upload a room image first!");
@@ -40,6 +42,7 @@
       }
       window.location.href = "drag-drop.html";
     }
+
 
     function goToAIMode() {
       if (!uploadedImage) {
@@ -51,3 +54,5 @@
   </script>
 </body>
 </html>
+
+
