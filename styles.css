@@ -33,7 +33,29 @@ button {
 button:hover {
   background: #0056b3;
 }
-
+.logo {
+      font-family: 'Poppins', sans-serif;
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #2c3e50;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+.logo span {
+  color: #e74c3c;
+  /* Highlight “2” in red */
+  font-size: 3rem;
+  /* Make “2” stand out */
+}
+.tagline {
+  font-size: 1rem;
+  color: #7f8c8d;
+  text-align: center;
+  margin-top: -24px;
+  margin-left: 100px;
+  margin-bottom: 20px;
+  font-style: italic;
+}
 .chatbox {
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -79,3 +101,5 @@ button:hover {
   border-radius: 8px;
   border: 1px solid #ccc;
 }
+
+
