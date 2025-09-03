@@ -17,11 +17,11 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(bodyParser.json({ limit: "50mb" }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public',)));
 
 // Route to serve the main page
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, 'public', 'api_index.html'));
 });
 
 // Test route
