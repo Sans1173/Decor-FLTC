@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Drag & Drop Decor Editor</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
+    background-color: #f0f0f0;
+  }
+
+  #upload-container {
+    margin-bottom: 20px;
+  }
+
+  #canvas {
+    position: relative;
+    width: 800px;
+    height: 500px;
+    border: 2px solid #007bff;
+    background-color: #fff;
+    overflow: hidden;
+  }
+
+  #canvas img#background {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+  }
+
+  .draggable-container {
+    position: absolute;
+    display: inline-block;
+  }
+
+  .draggable {
+    width: 80px;       /* default max width */
+    height: auto;      /* maintain aspect ratio */
+    cursor: grab;
+    user-select: none;
+    max-height: 120px;
+    display: block;
+  }
+
+  .draggable:active {
+    cursor: grabbing;
+  }
+
+  .delete-btn {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: red;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    display: none;
+  }
+
+  .draggable-container:hover .delete-btn {
+    display: block;
+  }
+
+  #object-palette {
+    margin-top: 20px;
+    display: flex;
+    gap: 15px;
+  }
+
+  #object-palette img {
+    width: 60px;
+    cursor: grab;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 3px;
+    background-color: #fff;
+  }
+
+  #object-upload-container {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+  }
+
+  #object-upload-container label {
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+<div id="upload-container">
+  <label>Upload Background: <input type="file" id="upload-bg" accept="image/*"></label>
+</div>
+
+<div id="canvas">
+  <img id="background" src="" alt="Background">
+</div>
+
+<div id="object-palette">
+  <img src="vase2.jpg" alt="Vase" class="object-item" data-type="vase">
+  <img src="chair2.jpg" alt="Chair" class="object-item" data-type="chair">
+  <img src="plant.jpg" alt="Table" class="object-item" data-type="table">
+  <img src="vase.jpeg" alt="Vase" class="object-item" data-type="vase">
+  <img src="chair.png" alt="Chair" class="object-item" data-type="chair">
+  <img src="vaase.jpeg" alt="Table" class="object-item" data-type="table">
+</div>
+
+<div id="object-upload-container">
+  <label>Vase: <input type="file" id="vase-upload" accept="image/*"></label>
+  <label>Chair: <input type="file" id="chair-upload" accept="image/*"></label>
+  <label>Table: <input type="file" id="table-upload" accept="image/*"></label>
+</div>
+
+<script>
+const uploadBg = document.getElementById('upload-bg');
+const background = document.getElementById('background');
+const canvas = document.getElementById('canvas');
+const objectItems = document.querySelectorAll('.object-item');
+
+// Upload background image
+uploadBg.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    background.src = event.target.result;
+  }
+  reader.readAsDataURL(file);
+});
+
+// Make element draggable
+function makeDraggable(container) {
+  const el = container.querySelector('img');
+  let offsetX = 0, offsetY = 0, isDragging = false;
+
+  el.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    offsetX = e.clientX - container.getBoundingClientRect().left;
+    offsetY = e.clientY - container.getBoundingClientRect().top;
+    container.style.zIndex = 1000;
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    let x = e.clientX - offsetX - canvas.getBoundingClientRect().left;
+    let y = e.clientY - offsetY - canvas.getBoundingClientRect().top;
+
+    // Keep inside canvas
+    x = Math.max(0, Math.min(canvas.clientWidth - container.clientWidth, x));
+    y = Math.max(0, Math.min(canvas.clientHeight - container.clientHeight, y));
+
+    container.style.left = x + 'px';
+    container.style.top = y + 'px';
+  });
+
+  document.addEventListener('mouseup', () => {
+    isDragging = false;
+    container.style.zIndex = 1;
+  });
+}
+
+// Add objects from palette to canvas
+objectItems.forEach(item => {
+  item.addEventListener('click', () => {
+    const container = document.createElement('div');
+    container.classList.add('draggable-container');
+    container.style.left = '10px';
+    container.style.top = '10px';
+
+    const clone = item.cloneNode(true);
+    clone.classList.add('draggable');
+    container.appendChild(clone);
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.innerText = '×';
+    deleteBtn.classList.add('delete-btn');
+    deleteBtn.addEventListener('click', () => container.remove());
+    container.appendChild(deleteBtn);
+
+    canvas.appendChild(container);
+    makeDraggable(container);
+  });
+});
+
+// Handle uploaded object images
+function handleObjectUpload(inputId, objectType) {
+  const input = document.getElementById(inputId);
+  const objectImg = document.querySelector(`.object-item[data-type="${objectType}"]`);
+
+  input.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      objectImg.src = event.target.result;
+
+      objectImg.onload = () => {
+        const maxWidth = 80;
+        const maxHeight = 120;
+
+        if (objectImg.width > maxWidth) {
+          const scale = maxWidth / objectImg.width;
+          objectImg.width = maxWidth;
+          objectImg.height = objectImg.height * scale;
+        }
+
+        if (objectImg.height > maxHeight) {
+          const scale = maxHeight / objectImg.height;
+          objectImg.height = maxHeight;
+          objectImg.width = objectImg.width * scale;
+        }
+      }
+    }
+    reader.readAsDataURL(file);
+  });
+}
+
+handleObjectUpload('vase-upload', 'vase');
+handleObjectUpload('chair-upload', 'chair');
+handleObjectUpload('table-upload', 'table');
+</script>
+
+</body>
+</html>
